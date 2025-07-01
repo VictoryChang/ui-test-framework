@@ -4,40 +4,57 @@
 Create a Python UI Test Framework, built with playwright and pytest, that is simple to read, run, and extend.
 
 ## Design Pattern
-Encapsulating an Browser Page in a Web Application into a "Page" helps make the page be more extensible and the tests more readable.
+Encapsulating a Browser Page in a Web Application into a "Page" helps make the page be more extensible and the tests more readable.
 
-Example Page:
+Example Login Page:
 ```python
 from playwright.sync_api import Page
 
 
-class OrangeHrmHomePage:
+class LoginPage:
     def __init__(self, page: Page):
         self.page = page
-        self.username = page.locator('//input[@name="username"]')
-        self.password = page.locator('//input[@name="password"]')
-        self.submit = page.locator('//button[@type="submit"]')
-
+        self.username = page.locator('//input[@id="user-name"]')
+        self.password = page.locator('//input[@id="password"]')
+        self.submit = page.locator('//input[@id="login-button"]')
+    
     def navigate(self):
-        self.page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login")
-
+        self.page.goto("https://www.saucedemo.com/")
+    
     def login(self, username: str, password: str):
         self.username.type(username)
         self.password.type(password)
         self.submit.click()
 ```
 
+Example Inventory Page (upon the success login on the home page):
+```python
+from playwright.sync_api import Page
+
+
+class InventoryPage:
+    def __init__(self, page: Page):
+        self.page = page
+    
+    def isat(self):
+        assert self.page.url == "https://www.saucedemo.com/inventory.html"
+
+```
+
+
 Example Test Case:
 ```python
-from pages.orangehrm_homepage import OrangeHrmHomePage
+from playwright.sync_api import Page
+
+from pages import InventoryPage, LoginPage
 
 
-def test_login_orange(page):
-    homepage = OrangeHrmHomePage(page)
+def test_login_swaglabs(page: Page):
+    homepage = LoginPage(page)
     homepage.navigate()
-    homepage.login(username="Admin", password="admin123")
-    page.wait_for_timeout(3000)
-    assert page.url == "https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index"
+    homepage.login(username="standard_user", password="secret_sauce")
+    inventory = InventoryPage(page)
+    inventory.isat()
 ```
 
 ## Running Test Cases
